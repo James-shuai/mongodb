@@ -1,0 +1,121 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>MongoDB 图片迁移程序</title>
+	<script type="text/javascript" src="jquery.min.js"></script>
+</head>
+<style>
+	.query{background: #ddd;width:1100px;height: 50px;padding-top:15px;padding-left:5px;}
+	table{background: #fafafa}
+	table tr td,table tr th{height: 30px !important;border: 1px solid #ddd;}
+	table thead{background: #00B0FC;}
+</style>
+
+<body>
+	<h1>MongoDB 图片迁移程序</h1>
+	<div class="query">
+		开始流水号<input id="startlsh" />  
+		结束流水号<input id="endlsh" />   
+		<button onclick="start()">开始</button>
+		<button onclick="loadList()">刷新列表</button>
+	</div>
+	
+	<div style="margin:20px 0;"></div>
+	<table title="统计" style="width:1100px;border-collapse: collapse;border:2px solid #ddd;" >
+		<thead>
+			<tr>
+				<th width="250">开始时间</th>	
+				<th width="200">开始流水号</th>
+				<th width="200">结束流水号</th>
+				<th width="150">全部数量</th>
+				<th width="150">完成数量</th>
+				<th width="150">任务状态</th>
+				<th width="150">操作</th>
+			</tr>
+		</thead>
+		<tbody id="taskList">
+		</tbody>
+	</table>
+	
+	
+</body>
+<script>
+
+$(function(){
+	loadList();
+})
+
+//快速插入
+function start(){
+	 
+	 $.ajax({
+        url:'/open/openProgom.do?startlsh='+$("#startlsh").val()+'&endlsh='+$("#endlsh").val(),
+        type: 'POST',
+        cache: false,
+        processData: false,
+        contentType: false,
+        success:function(data){
+         	console.log(data);
+       	 if(data.code=1){
+       		alert(data.msg);
+       		loadList();
+       	 }
+        }
+    });
+	
+}
+
+
+
+function stop(taskId){
+	 
+	 $.ajax({
+       url:'/open/stopProgom.do?time='+taskId,
+       type: 'POST',
+       cache: false,
+       processData: false,
+       contentType: false,
+       success:function(data){
+        	console.log(data);
+      	 if(data.code=1){
+      		alert(data.msg);
+      		loadList();
+      	 }
+       }
+   });
+	
+}
+
+
+function loadList(){
+	 $.ajax({
+	        url:'/open/list.do',
+	        type: 'POST',
+	        cache: false,
+	        processData: false,
+	        contentType: false,
+	        success:function(data){
+	        	console.log(data)
+	         	var html='';
+	         	for(var i=0;i<data.length;i++){
+	         		var item = data[i];
+	         		html+='<tr>' +
+	         		 		'<td>'+item.date+'</td>'	+
+	         		 		'<td>'+item.start+'</td>'	+
+	         		 		'<td>'+item.end+'</td>'	+
+	         		 		'<td>'+item.total+'</td>'	+
+	         		 		'<td>'+item.complete+'</td>'	+
+	         		 		'<td>'+item.status+'</td>'	+
+	         		 		'<td><button onclick="stop(\''+item.date+'\')">停止</button></td>'	+
+	         		 	  '</tr>';
+	         		 	  
+	         		 	  console.log(html)
+	         		$('#taskList').html(html); 	  
+	         	}
+	        }
+	 });
+}
+
+
+</script>
+</html>
